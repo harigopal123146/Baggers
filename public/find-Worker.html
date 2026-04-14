@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+
+       <script>
+       var module=angular.module("usersModule",[]);
+        module.controller("usersController",function($scope,$http)
+        {
+            //================ WorkFill ==================
+             $scope.worktypeJsonAry;
+              $scope.doFetchAllemailid=function()
+              {
+                    $http.get("/angular-FindWorker-work").then(allGoodFxKuch,errFxkuch)
+                    function allGoodFxKuch(result)
+                                    {
+                                            // alert(JSON.stringify(result.data));
+                                            $scope.worktypeJsonAry=result.data;
+                                    }
+                    function errFxkuch(err)
+                    {
+                      alert(err);
+                    }             
+              }
+
+              //==================== CityFill ==================
+               $scope.cityJsonAry;
+              $scope.doFetchAllCity=function()
+              {
+                    $http.get("/angular-FindWorker-city").then(allGoodFxKuch,errFxkuch)
+                    function allGoodFxKuch(result)
+                                    {
+                                            // alert(JSON.stringify(result.data));
+                                            $scope.cityJsonAry=result.data;
+                                    }
+                    function errFxkuch(err)
+                    {
+                      alert(err);
+                    }             
+              }
+              //============== Find Worker =====================
+              $scope.jsonAry=[];
+              $scope.FindWorker=function()
+              {
+
+                 let url="fetchWorkers?worktype="+$scope.selWork+"&city="+$scope.selCity;
+
+                    $http.get(url).then(allGood,errkuch)
+
+                    function allGood(result)
+                        {
+                            // alert(result);
+                            $scope.jsonAry=result.data;
+                        }
+
+                    function errkuch(err)
+                        {
+                            alert(err);
+                        }
+              }
+
+              //=====================Show Details ======================
+              $scope.selectedWorker = {};
+              $scope.ShowDetails = function (obj)
+               {
+                  $scope.selectedWorker = obj;
+               }
+        })
+       </script>
+  <style>
+          /* Page Background */
+          body {
+            background: linear-gradient(to right, #e3f2fd, #f8f9fa);
+            font-family: 'Segoe UI', sans-serif;
+          }
+
+          /* Header Card */
+          .card-header {
+            background: linear-gradient(135deg, #007bff, #6610f2) !important;
+            border-radius: 10px 10px 0 0;
+          }
+
+          /* Main Card */
+          .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: 0.3s ease;
+          }
+
+          .card:hover {
+            transform: translateY(-5px);
+          }
+
+          /* Form Controls */
+          .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            transition: 0.3s;
+          }
+
+          .form-control:focus, .form-select:focus {
+            border-color: #6610f2;
+            box-shadow: 0 0 5px rgba(102, 16, 242, 0.4);
+          }
+
+          /* Button */
+          .btn-success {
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: 0.3s;
+          }
+
+          .btn-success:hover {
+            transform: scale(1.05);
+          }
+
+          /* Worker Cards */
+          .card img {
+            border-radius: 10px;
+            margin-top: 10px;
+            object-fit: cover;
+            border: 2px solid #eee;
+          }
+
+          .card-body {
+            text-align: center;
+          }
+
+          .card-text p {
+            margin: 5px 0;
+            font-size: 14px;
+          }
+
+          /* Details Button */
+          .btn-primary {
+            border-radius: 8px;
+            font-size: 14px;
+            padding: 6px 15px;
+          }
+
+          /* Modal Styling */
+          .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+          }
+
+          .modal-header {
+            background: linear-gradient(135deg, #007bff, #6610f2);
+            border-radius: 12px 12px 0 0;
+          }
+
+          /* Profile Image */
+          .rounded-circle {
+            border: 3px solid #007bff;
+          }
+
+          /* Table inside modal */
+          table th {
+            width: 120px;
+            color: #555;
+          }
+
+          table td {
+            font-weight: 500;
+          }
+
+          /* ID Section */
+          hr {
+            border-top: 2px dashed #ccc;
+          }
+
+          /* Responsive Fix */
+          @media (max-width: 768px) {
+            .card {
+              margin-bottom: 20px;
+            }
+          }
+
+  </style>
+</head>
+<body ng-app="usersModule" ng-controller="usersController" ng-init="doFetchAllemailid();doFetchAllCity();">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm px-4 py-2">
+  <div class="container-fluid">
+    <!-- Logo -->
+    <a class="navbar-brand d-flex align-items-center fw-semibold me-4" href="#">
+      <img src="/pics/Bagger.jpg" width="45" height="40" class="me-2 rounded">
+      Baggers Free Society
+    </a>
+
+      <!-- LEFT SIDE BIG LINKS -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+        <li class="nav-item">
+          <a class="nav-link fs-5 fw-bold px-3" href="citizenDash.html">Home</a>
+        </li>
+      </ul>
+  </div>
+</nav>
+
+
+    <div class="container">
+      <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>Find Worker</h3>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-4">
+          <label  class="form-label">Type of Work</label>
+                <select ng-model="selWork" class="form-select" required >
+                      <option value="" selected disabled>Choose...</option>
+                      <option ng-repeat="obj in worktypeJsonAry" value="{{obj.worktype}}">{{obj.worktype}}</option>
+                </select>
+        </div>
+
+        <div class="col-md-4">
+           <label  class="form-label">City</label>
+                <select ng-model="selCity" class="form-select" required >
+                      <option value="" selected disabled>Choose...</option>
+                      <option ng-repeat="obj in cityJsonAry" value="{{obj.city}}">{{obj.city}}</option>
+                </select>
+        </div>
+
+        <div class="col-md-3 mt-4">
+              <button class="btn btn-success mb-4" ng-click="FindWorker()">Find Worker</button>
+
+        </div>
+      </div>
+
+      <div class="row mt-5">
+        <div class="col-md-4" ng-repeat="obj in jsonAry">
+          <div class="card" >
+            <center>
+              <img ng-src={{obj.hpicurl}}  style="width: 170px; height: 170px;" alt="...">
+            </center>
+              <div class="card-body">
+                <h5 class="card-title"></h5>
+                <div class="card-text ">
+                  <p>
+                <b> Name:</b> {{obj.bname}}
+                  </p>
+                  <p>
+                    <b>Age:</b> {{obj.age}}
+                  </p>
+                  <p>
+                   <b>Gender:</b> {{obj.gender}}
+                  </p>
+                </div>
+               <center> <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#Details" ng-click="ShowDetails(obj)">Details</a> </center>
+              </div>
+          </div>
+        </div>
+
+      </div>
+
+
+    </div>
+
+    <!-- Modal -->
+<div class="modal fade" id="Details" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary">
+        <h5 class="modal-title text-white fs-2">Worker Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <div class="container-fluid">
+
+          <!-- Profile Section -->
+          <div class="row mb-3">
+            <div class="col-md-4 text-center">
+              <img ng-src="{{selectedWorker.proffpicurl}}" class="img-fluid rounded-circle border" style="width:140px;height:140px;object-fit:cover;">
+              <h5 class="mt-2 mb-0">{{selectedWorker.bname}}</h5>
+              <span class="badge bg-primary mt-1">{{selectedWorker.worktype}}</span>
+            </div>
+
+            <div class="col-md-8">
+               <table class="table table-sm table-borderless"> <!--table table-sm table-borderless mb-0 -->
+                <tr>
+                  <th>Age</th>
+                  <td>{{selectedWorker.age}}</td>
+                </tr>
+                <tr>
+                  <th>Gender</th>
+                  <td>{{selectedWorker.gender}}</td>
+                </tr>
+                <tr>
+                  <th>Contact</th>
+                  <td>{{selectedWorker.contact}}</td>
+                </tr>
+                <tr>
+                  <th>City</th>
+                  <td>{{selectedWorker.city}}</td>
+                
+                </tr>
+                <tr>
+                  <th>Address</th>
+                  <td>{{selectedWorker.address}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- ID Section -->
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="fw-bold fs-4">ID Details</h6>
+              <p class="mb-1"><strong>Type:</strong> {{selectedWorker.idproff}}</p>
+              <p><strong>Number:</strong> {{selectedWorker.proffno}}</p>
+            </div>
+
+            <div class="col-md-6 text-center">
+              <h6 class="fw-bold">ID Proof</h6>
+              <img ng-src="{{selectedWorker.hpicurl}}" class="img-fluid rounded border" style="max-height:170px; width:300px">
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

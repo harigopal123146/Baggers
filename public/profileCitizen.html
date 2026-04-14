@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Citizen Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>  
+
+    <script>
+      function doPrev(event, imgId)
+        {
+            const file = event.target.files[0];
+            if (file != null) {
+                document.getElementById(imgId).src = URL.createObjectURL(file);
+            }
+        }
+        //===============================================
+         $(document).ready(function(){
+           $("#txtEmailCit").blur(function(){
+                
+                let email=$(this).val();
+                let regEx=/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                let resp=regEx.test(email);
+                if(resp==true)
+                    $("#errEmail").html("Valid").addClass("ok").removeClass("not-ok");
+                else
+                    $("#errEmail").html("Invalid").addClass("not-ok").removeClass("ok");
+            })
+            //===============================
+            $("form").submit(function(e){
+
+            let front = $("#txtAdhrCitiFro").val();
+            let back = $("#txtAdhrCitiBack").val();
+
+            let valid = true;
+
+            if(front === ""){
+                $("#errFront").text("Upload front image");
+                valid = false;
+            } else {
+                $("#errFront").text("");
+            }
+
+            if(back === ""){
+                $("#errBack").text("Upload back image");
+                valid = false;
+            } else {
+                $("#errBack").text("");
+            }
+
+            if(!valid){
+                e.preventDefault();
+            }
+         });
+      //======================================
+        // Clear error when selecting file
+        $("#txtAdhrCitiFro").change(function(){
+            $("#errFront").text("");
+        });
+
+        $("#txtAdhrCitiBack").change(function(){
+            $("#errBack").text("");
+        });
+
+   });
+</script>
+<style>
+ .ok{
+      color: green; border: 1px green solid; border-radius: 10px;text-align: center; padding: 2px ; width: 50px;
+      margin-top: 2px;
+    }
+  .not-ok{
+      color: red; border: 1px red solid; border-radius: 10px;text-align: center; padding: 2px ; width: 50px;
+      margin-top: 2px;
+    }
+  /* Page Background */
+  body {
+    background: linear-gradient(to right, #eef2f3, #dfe9f3);
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  /* Header */
+  .bg-danger {
+    background: linear-gradient(135deg, #ff512f, #dd2476) !important;
+    padding: 15px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  /* Main Container */
+  .con-border {
+    border: none;
+    border-radius: 12px;
+    padding: 30px;
+    background: #ffffff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Section Boxes */
+  .section-box {
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    background: #f8f9fa;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+  }
+
+  /* Labels */
+  .form-label {
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* Inputs */
+  .form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    transition: 0.3s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #dd2476;
+    box-shadow: 0 0 5px rgba(221, 36, 118, 0.4);
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, #36d1dc, #5b86e5);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 25px;
+    font-weight: 600;
+    transition: 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #5b86e5, #36d1dc);
+  }
+
+  /* Upload Buttons */
+  .upload-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-btn input {
+    cursor: pointer;
+  }
+
+  /* Image Preview */
+  img {
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 5px;
+    object-fit: cover;
+    transition: 0.3s;
+  }
+
+  img:hover {
+    border-color: #5b86e5;
+    transform: scale(1.03);
+  }
+
+  /* Spacing */
+  .row {
+    margin-bottom: 10px;
+  }
+
+  /* Responsive Fix */
+  @media (max-width: 768px) {
+    .section-box {
+      margin-bottom: 20px;
+    }
+  }
+  .con-border{
+        border: 2px solid #333;
+        border-radius: 10px;
+        padding: 30px;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .section-box{
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 20px;
+        background: #fafafa;
+
+   }
+</style>
+
+</head>
+<body>
+  <div class="row">
+    <div class="col-md-12 text-center bg-danger fs-1 text-white">
+      Citizen Profile
+    </div>
+  </div>
+  <div class="container mt-4 con-border">
+    <form action="/Citizen-Profile" method="post"  enctype="multipart/form-data">
+
+    <div class="row">
+      <div class="col-md-4  section-box text-center">
+        <h5 class="mb-4">Upload Aadhar Card</h5>
+
+          <!-- FRONT -->
+         <img src=""  id="citizenAdharFront" width="200" height="150">
+
+         <label class="btn btn-outline-primary btn-sm upload-btn w-75 mt-2">Upload Front
+              <input type="file" id="txtAdhrCitiFro" name="txtAdhrCitiFro" hidden accept="image/*" onchange="doPrev(event,'citizenAdharFront')">
+          </label>
+          <div id="errFront" class="text-danger"></div>
+
+           <!-- BACK IMAGE (BELOW FRONT) -->
+            <img src=""  id="citizenAdharBack" width="200" height="150" style="margin-top: 15px;">
+  
+
+            <label class="btn btn-outline-primary btn-sm w-75 mt-2">Upload Backside
+              <input type="file" id="txtAdhrCitiBack" name="txtAdhrCitiBack" hidden accept="image/*" onchange="doPrev(event,'citizenAdharBack')">
+            </label>
+            <div id="errBack" class="text-danger"></div>
+      </div>
+
+       <!-- RIGHT SIDE : FORM DETAILS -->
+          <div class="col-md-8 section-box">  
+            <div class="row">
+              <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Email Id</label>
+                <input type="email" name="txtEmailCit" id="txtEmailCit" class="form-control"required />
+                  <div class="err" id="errEmail"></div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Mobile Number</label>
+                <input type="tel" name="txtmobileCit" id="txtmobileCit" maxlength="12" class="form-control" required />
+              </div>
+            </div>
+
+            <div class="row mt-1">
+              <div class="col-md-5">
+                <label for="txtNameCit" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="txtNameCit" name="txtNameCit"  maxlength="20" placeholder="@UserName" required>
+              </div>
+              <div class="col-md-6 mt-1">
+                 <label for="txtAdrNoCit" class="form-label">Adhar Card No</label>
+                        <input type="text" id="txtAdrNoCit" name="txtAdrNoCit" placeholder="Adhar No" maxlength="12" class="form-control">
+              </div>
+            </div>
+
+            <div class="row mt-1">
+              <div class="col-md-4">
+                <label for="txtFatherNameCit" class="form-label">Father's Name</label>
+                <input type="text" class="form-control" id="txtFatherNameCit" name="txtFatherNameCit"  maxlength="20"  required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">DOB</label>
+                <input type="date" name="txtdobCit" id="txtdobCit" class="form-control" />
+              </div>
+              <div class="col-md-4">
+                 <label for="txtGenderCit" class="form-label">Gender</label>
+                          <select id="txtGenderCit" name="txtGenderCit" class="form-select" required>
+                            <option value=""selected disabled>Choose...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                          </select>
+              </div>
+            </div>
+
+            <div class="row mt-1">
+              <div class="col-md-7">
+                <label for="txtAddrCit" class="form-label">Address</label>
+                <input type="text" class="form-control" id="txtAddrCit" name="txtAddrCit" placeholder="1234 Main St" required>
+              </div>
+              
+              <div class="col-md-4">
+                  <label for="txtCityCit" class="form-label">City</label>
+                  <input type="text" class="form-control" id="txtCityCit" name="txtCityCit" required>
+              </div>
+            </div>
+
+            <div class="row mt-4 text-center">
+              <div class="col-md-12 ">
+               <button type="submit"  class="btn btn-primary text-center" >Save</button> 
+              </div>
+            </div>
+
+          </div>
+      </div>
+    </div>
+    </form>  
+  </div>
+ 
+</body>
+</html>

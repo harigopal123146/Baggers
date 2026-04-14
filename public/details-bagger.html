@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bagger Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>  
+
+       <script>
+          function doPrev(event, imgId)
+         {
+            const file = event.target.files[0];
+            if (file != null) {
+                document.getElementById(imgId).src = URL.createObjectURL(file);
+            }
+         }
+         //========================
+        $(document).ready(function(){
+           $("#baggerEmailV").blur(function(){
+                
+                let email=$(this).val();
+                let regEx=/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                let resp=regEx.test(email);
+                if(resp==true)
+                    $("#errEmail").html("Valid").addClass("ok").removeClass("not-ok");
+                else
+                    $("#errEmail").html("Invalid").addClass("not-ok").removeClass("ok");
+            })
+        })
+       </script>
+  <style>
+        .ok{
+            color: green; border: 1px green solid; border-radius: 10px;text-align: center; padding: 2px ; width: 50px;
+            margin-top: 2px;
+        }
+        .not-ok{
+            color: red; border: 1px red solid; border-radius: 10px;text-align: center; padding: 2px ; width: 50px;
+            margin-top: 2px;
+        }
+        /* Background */
+        body {
+          background: linear-gradient(to right, #f1f4f9, #dff1ff);
+          font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* Header */
+        .bg-danger {
+          background: linear-gradient(135deg, #ff416c, #ff4b2b) !important;
+          padding: 15px;
+          font-weight: 600;
+          letter-spacing: 1px;
+        }
+
+        /* Container */
+        .container {
+          background: #fff;
+          padding: 30px;
+          border-radius: 12px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Section Title */
+        b {
+          font-size: 18px;
+          color: #333;
+        }
+
+        /* Labels */
+        .form-label {
+          font-weight: 600;
+          color: #444;
+        }
+
+        /* Inputs */
+        .form-control, .form-select {
+          border-radius: 8px;
+          border: 1px solid #ddd;
+          transition: 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+          border-color: #ff416c;
+          box-shadow: 0 0 6px rgba(255, 65, 108, 0.4);
+        }
+
+        /* Button */
+        .btn-primary {
+          background: linear-gradient(135deg, #36d1dc, #5b86e5);
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+          transform: scale(1.05);
+          background: linear-gradient(135deg, #5b86e5, #36d1dc);
+        }
+
+        /* Image Preview */
+        img {
+          border: 2px dashed #ccc;
+          border-radius: 10px;
+          padding: 5px;
+          margin-bottom: 10px;
+          object-fit: cover;
+          transition: 0.3s;
+        }
+
+        img:hover {
+          border-color: #5b86e5;
+          transform: scale(1.05);
+        }
+
+        /* File Input */
+        input[type="file"] {
+          font-size: 14px;
+        }
+
+        /* Row spacing */
+        .row {
+          margin-bottom: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .container {
+            padding: 20px;
+          }
+        }
+
+  </style>
+</head>
+<body>
+     <div class="row">
+            <div class="col-md-12 fs-2 bg-danger text-white">
+                <center>
+                    Bagger Details
+                </center>
+            </div>
+      </div>
+
+       <div class="container mt-3">
+            <div class="row ">
+              <div class="col-md-12">
+                <form class="row g-3" action="/Bagger-Details"  method="post" enctype="multipart/form-data">
+                  
+                  <div class="row">
+                     <div class="col-md-7">
+                      <label for="baggerEmailV" class="form-label">Volunteer's Email id</label>
+                      <input type="email" class="form-control" name="baggerEmailV" id="baggerEmailV" required>
+                        <div class="err" id="errEmail"></div>
+
+                    </div>
+                  </div>
+
+                  <div class="row mt-4 fs-6">
+                    <div class="col-md-6">
+                      <b>Bagger's Detalis</b>
+                    </div>
+                  </div>
+
+                    <div class="row mt-1">
+                      <div class="col-md-7">
+                        <label for="baggerAddress" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="baggerAddress"name="baggerAddress" placeholder="1234 Main St" required>
+                      </div>
+                      <div class="col-md-3">
+                         <label for="baggerCity" class="form-label">City</label>
+                         <input type="text" class="form-control" id="baggerCity" name="baggerCity" required>
+                      </div>
+                    </div>
+
+                    <div class="row mt-1">
+                      <div class="col-md-3">
+                         <label for="baggerTypeOfWork" class="form-label">Type of Work</label>
+                          <select id="baggerTypeOfWork" name="baggerTypeOfWork" class="form-select" required>
+                            <option value=""selected disabled>Choose...</option>
+                            <option value="Sweeping & mopping">Sweeping & mopping</option>
+                            <option value="Driver">Driver</option>
+                            <option value="Cook">Cook</option>
+                            <option value="Laundry Worker">Laundry Worker</option>
+                            <option value="Gardener">Gardener</option>
+                          </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label for="baggerContact" class="form-label">Contact.No</label>
+                        <input type="tel" class="form-control"  id="baggerContact" name="baggerContact" placeholder="Enter your phone number"pattern="[0-9]{10}" maxlength="10"  required>
+                      </div>
+                    </div>
+                      
+                    <div class="row mt-3">
+                        
+                        <!-- Proof Pic -->
+                        <div class="col-12 col-md-6 text-center mb-3">
+                          <label class="form-label fw-bold">Upload Proof Pic</label>
+                          <img src="" id="proffpic" width="100" height="100">
+
+                          <input type="file" name="baggerProofPic" id="baggerProofPic" required onchange="doPrev(event,'proffpic');">
+                        </div>
+
+                        <!-- Profile Pic -->
+                        <div class="col-12 col-md-6 text-center mb-3">
+                          <label class="form-label fw-bold">Upload Profile Pic</label>
+
+                          <img src="" id="baggerpic" width="100" height="100">
+
+                          <input type="file" name="baggerPic" id="baggerPic" required onchange="doPrev(event,'baggerpic');">
+                        </div>
+
+                      </div>
+
+                    <div class="row mt-4 ">
+                      <div class="col-md-3">
+                      </div>
+                      <div class="col-md-3 ">
+                        <button type="submit"  class="btn btn-primary w-100 mt-3" >Publish Data</button>  
+                      </div>
+                    </div>
+                  
+                 </form>
+              </div>
+            </div>
+        </div>
+    
+    
+  </body>
+</html>
+
+
+ 

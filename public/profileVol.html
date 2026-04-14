@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Voluenteer Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>  
+
+   <script>
+        function doPrev(event, imgId)
+        {
+            const file = event.target.files[0];
+            if (file != null) {
+                document.getElementById(imgId).src = URL.createObjectURL(file);
+            }
+        }
+        //==============================
+            $(document).ready(function(){
+              $("#txtEmailV").blur(function(){
+    
+                let email=$(this).val();
+                let regEx=/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                let resp=regEx.test(email);
+                if(resp==true)
+                    $("#errEmail").html("Valid").addClass("ok").removeClass("not-ok");
+                else
+                    $("#errEmail").html("Invalid").addClass("not-ok").removeClass("ok");
+              })
+              //===========================================
+              
+            $("form").submit(function(e){
+
+                let adhar = $("#aadhaarPic").val();
+                let profile = $("#profilePic").val();
+
+                let oldAdhar = $("#hdnAdhar").val();
+                let oldProfile = $("#hdnProfile").val();
+
+                let valid = true;
+
+                // AADHAR VALIDATION
+                if(adhar === "" && oldAdhar === ""){
+                    $("#errAdhar").text("Please upload Aadhar card");
+                    valid = false;
+                } else {
+                    $("#errAdhar").text("");
+                }
+
+                // PROFILE VALIDATION
+                if(profile === "" && oldProfile === ""){
+                    $("#errProfile").text("Please upload Profile picture");
+                    valid = false;
+                } else {
+                    $("#errProfile").text("");
+                }
+
+                if(!valid){
+                    e.preventDefault();
+                }
+            });
+            //===============================
+             // Clear error when selecting new file
+              $("#aadhaarPic").change(function(){
+                  $("#errAdhar").text("");
+              });
+
+              $("#profilePic").change(function(){
+                  $("#errProfile").text("");
+              });
+           })
+  </script>
+<script>
+  $(document).ready(function(){
+    $("#txtTypeV").change(function()
+    {
+      if($(this).val() == "NGO"){
+          $("#ifNgo").show();
+          $("#txtNgoNoV").attr("required", true);
+      } else {
+          $("#ifNgo").hide();
+          $("#txtNgoNoV").removeAttr("required");
+      }
+    });
+     //=========================================
+       $("#txtTypeV").change(function()
+                {
+                    if($("#txtTypeV").val()== "NGO")
+                        $("#ifNgo").css("display","block")
+                      
+                    else
+                        $("#ifNgo").css("display","none");
+                })
+      //============================
+    
+       $("#btnFetch").click(function(){
+               let obj={
+                     type:"GET",
+                  
+                    url:"/findone",
+                    data:{
+                        txtEmailV:$("#txtEmailV").val()
+                    }
+                }
+
+                $.ajax(obj).then(function(respJsonAry){
+                        alert(JSON.stringify(respJsonAry));
+                        $("#txtNameV").val(respJsonAry[0].name);
+                        $("#txtPhoneV").val(respJsonAry[0].contact);
+                        $("#txtAddrV").val(respJsonAry[0].address);
+                        $("#txtCityV").val(respJsonAry[0].city);
+                        $("#txtGenderV").val(respJsonAry[0].gender);
+                        $("#txtOccuV").val(respJsonAry[0].occupation);
+                        $("#txtTypeV").val(respJsonAry[0].volType).trigger("change");
+                        $("#txtNgoNoV").val(respJsonAry[0].volNgoNo);
+
+
+
+                        $("#prevAdhar").prop("src",respJsonAry[0].adharurl);
+                        
+                        $("#prevProfile").prop("src",respJsonAry[0].picurl);
+                        $("#hdnAdhar").val(respJsonAry[0].adharurl);
+                        $("#hdnProfile").val(respJsonAry[0].picurl);
+                        
+                }).fail(function(err){
+                        alert(err.message)
+                })
+            })
+    })
+  </script>
+     <style>
+
+        .ok{
+            color: green; border: 1px green solid; border-radius: 10px;text-align: center; padding: 2px ; width: 50px;
+            margin-top: 2px;
+        }
+        .not-ok{
+            color: red; border: 1px red solid; border-radius: 10px;text-align: center; padding: 2px ; width: 50px;
+            margin-top: 2px;
+        }
+        /* Body styling */
+        body {
+            background: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Header */
+        .bg-danger {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c) !important;
+            padding: 15px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* Form container */
+        .container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Labels */
+        .form-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Inputs */
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #ff416c;
+            box-shadow: 0 0 5px rgba(255, 65, 108, 0.5);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #36d1dc, #5b86e5);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #5b86e5, #36d1dc);
+        }
+
+        /* Fetch button */
+        #btnFetch {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        #btnFetch:hover {
+            background: #218838;
+        }
+
+        /* Image preview */
+        img {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+
+        /* NGO field animation */
+        #ifNgo {
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Responsive spacing */
+        .row {
+            margin-bottom: 10px;
+        }
+
+        /* Input hover */
+        .form-control:hover, .form-select:hover {
+            border-color: #999;
+        }
+  </style>
+ </head>
+<body>
+     <div class="row">
+            <div class="col-md-12 fs-2 bg-danger text-white">
+                <center>
+                    Volunteer Profile
+                </center>
+            </div>
+        </div>
+        <div class="container mt-3">
+            <div class="row ">
+              <div class="col-md-12">
+                <form class="row g-3" action="/Volunteer-secure"  method="post" enctype="multipart/form-data">
+                  <input type="hidden" name="hdnAdhar" id="hdnAdhar">
+                  <input type="hidden" name="hdnProfile"id="hdnProfile">
+                  <div class="row">
+                     <div class="col-md-5">
+                      <label for="txtEmailV" class="form-label">Email</label>
+                      <input type="email" class="form-control" name="txtEmailV" id="txtEmailV" required>
+                      <div class="err" id="errEmail"></div>
+                    </div>
+                    <div class="col-md-5  mt-4">
+                      <input type="button" value="Fetch" id="btnFetch">
+                    </div>
+                  </div>
+
+                  <div class="row mt-1">
+                    <div class="col-md-3">
+                       <label for="txtNameV" class="form-label">Full Name</label>
+                       <input type="text" class="form-control" id="txtNameV" name="txtNameV"  maxlength="20" placeholder="@UserName" required>
+
+                    </div>
+                    <div class="col-md-3">
+                       <label for="txtPhoneV" class="form-label">Contact.No</label>
+                        <input type="tel" class="form-control"  id="txtPhoneV" name="txtPhoneV" placeholder="Enter your phone number"pattern="[0-9]{10}" maxlength="10"  required>
+                      </div>
+                    </div>
+
+                    <div class="row mt-1">
+                      <div class="col-md-6">
+                        <label for="txtAddrV" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="txtAddrV"name="txtAddrV" placeholder="1234 Main St" required>
+                      </div>
+                      <div class="col-md-3">
+                         <label for="txtCityV" class="form-label">City</label>
+                         <input type="text" class="form-control" id="txtCityV" name="txtCityV" required>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-3">
+                         <label for="txtGenderV" class="form-label">Gender</label>
+                          <select id="txtGenderV" name="txtGenderV" class="form-select" required>
+                            <option value=""selected disabled>Choose...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                          </select>
+                      </div>
+                      <div class="col-md-3">
+                         <label for="txtOccuV" class="form-label">Occupation</label>
+                        <select id="txtOccuV" name="txtOccuV" class="form-select" required>
+                            <option value="" selected disabled>Choose...</option>
+                            <option value="Student">Student</option>
+                            <option value="Teacher">Teacher</option>
+                            <option value="Engineer">Engineer</option>
+                            <option value="Doctor">Doctor</option>
+                            <option value="Business Owner">Business Owner</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label for="txtTypeV" class="form-label">Type of Volantier</label>
+                        <select id="txtTypeV" name="txtTypeV" class="form-select" required>
+                            <option value="" selected disabled>Choose...</option>
+                                <option value="Individual">Individual</option>
+                                <option value="NGO">NGO</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3" id="ifNgo" style="display: none;">
+                        <label for="txtNgoNoV" class="form-label">Registration No</label>
+                        <input type="text" id="txtNgoNoV" name="txtNgoNoV" placeholder="NGO Registration no" class="form-control">
+                      </div>   
+                    </div>
+
+
+                    <div class="row mt-3">
+                         <!-- Adhar Pic -->
+                        <div class="col-12 col-md-6 text-center mb-3">
+                          <label class="form-label fw-bold">Upload Aadhar Card No </label>
+                          
+                              <input type="file" name="aadhaarPic" id="aadhaarPic" class="form-control" onchange="doPrev(event,'prevAdhar');" accept="image/*">
+                              <img src=""  id="prevAdhar" class="img-fluid"  width="600" height="300">
+                          <div id="errAdhar" class="text-danger"></div>
+                        </div>
+
+                        <!-- Profile Pic -->
+                        <div class="col-12 col-md-6 text-center mb-3">
+                          <label class="form-label fw-bold">Upload Profile Pic</label>
+                         
+                           <input type="file" name="profilePic" id="profilePic" class="form-control" onchange="doPrev(event,'prevProfile');" accept="image/*">
+                            <img src=""   id="prevProfile"  class="img-fluid"  width="600" height="300">
+                          <div id="errProfile" class="text-danger"></div>
+                        </div>
+                      </div>
+
+
+                    <div class="row mt-4 ">
+                      <div class="col-md-4">
+
+                      </div>
+                      <div class="col-md-2 ">
+                        <button type="submit"  class="btn btn-primary w-100 mt-3" >Submit</button>  
+                      </div>
+                       <div class="col-md-3 ">
+                        <button type="submit"  class="btn btn-primary w-100 mt-3" formaction="/doUpdate">Update</button>  
+                      </div>
+                    </div>
+                    
+                  </div>
+                  
+                 </form>
+              </div>
+            </div>
+        </div>
+  </body>
+</html>
+
