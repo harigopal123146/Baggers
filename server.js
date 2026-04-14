@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 var mysql=require("mysql2");
 app.use(fileuploader());// File Uploader
 
+
 // ===============   Gemini AI ==========================
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -610,7 +611,7 @@ app.get("/adminDash",function(req,resp){
 
 app.get("/UserManager",function(req,resp)
 {
-        let fullPath=__dirname+"/public/all-Users.html";
+        let fullPath=__dirname+"/public/all-users.html";
         resp.sendFile(fullPath);
 })
 
