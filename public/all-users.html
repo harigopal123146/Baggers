@@ -28,6 +28,7 @@
 
             $scope.doBlock = function (emailid) {
                 $http.get("/angular-userBlock?emailid=" + emailid).then(function (result) {
+                         $scope.doFetchUsers();
                     alert(result.data);
                 }, function (err) {
                     alert(err);
@@ -36,6 +37,7 @@
 
             $scope.doResume = function (emailid) {
                 $http.get("/angular-userResume?emailid=" + emailid).then(function (result) {
+                     $scope.doFetchUsers();
                     alert(result.data);
                 }, function (err) {
                     alert(err);
