@@ -18,58 +18,29 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI("AIzaSyCwidq0q7jrgGHdzDCZl5MqjjPk6EHyOIA");
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-async function AIFUNCTION(imgurl) {
-  try {
-    const myprompt = `
-Extract details from this Aadhaar card image.
-
-Return ONLY valid JSON. No explanation.
-
-Format:
+async function AIFUNCTION(imgurl)
 {
-  "adhaar_number": "",
-  "name": "",
-  "gender": "",
-  "dob": ""
-}
-`;
-
-    const imageResp = await fetch(imgurl);
-    const buffer = await imageResp.arrayBuffer();
+const myprompt = "Read the text on picture and tell all the information in adhaar card and give output STRICTLY in JSON format {adhaar_number:'', name:'', gender:'', dob: ''}. Dont give output as string."   
+    const imageResp = await fetch(imgurl)
+        .then((response) => response.arrayBuffer());
 
     const result = await model.generateContent([
-      {
-        inlineData: {
-          data: Buffer.from(buffer).toString("base64"),
-          mimeType: "image/jpeg",
+        {
+            inlineData: {
+                data: Buffer.from(imageResp).toString("base64"),
+                mimeType: "image/jpeg",
+            },
         },
-      },
-      myprompt,
+        myprompt,
     ]);
+    console.log(result.response.text())
+            
+            const cleaned = result.response.text().replace(/```json|```/g, '').trim();
+            const jsonData = JSON.parse(cleaned);
+            console.log(jsonData);
 
-    let text = result.response.text();
+    return jsonData
 
-    text = text.replace(/```json|```/g, "").trim();
-
-    let jsonData;
-
-    try {
-      jsonData = JSON.parse(text);
-    } catch {
-      jsonData = {
-        adhaar_number:
-          text.match(/\d{4}\s?\d{4}\s?\d{4}/)?.[0]?.replace(/\s/g, "") || "",
-        name: "",
-        gender: text.match(/Male|Female/i)?.[0] || "",
-        dob: text.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "",
-      };
-    }
-
-    return jsonData;
-  } catch (error) {
-    console.error("AI ERROR:", error);
-    return null;
-  }
 }
 
 
@@ -392,110 +363,125 @@ app.get("/Bagger-Details",function(req,resp){
 // })
 
 
+
+
 app.post("/Bagger-Details", async function (req, resp) {
   try {
+    console.log("BODY:", req.body);
+
     let ProofPicB = "No_Pic.jpg";
     let profilePic = "No_Pic.jpg";
     let aiJsonData = null;
 
-    // ================= IMAGE 1 =================
-    if (req.files?.baggerProofPic) {
+    // =========================
+    // ✅ FIRST IMAGE (Proof Pic)
+    // =========================
+    if (req.files && req.files.baggerProofPic) {
       try {
         let file1 = req.files.baggerProofPic;
-        let fullpath1 = __dirname + "/upload/" + Date.now() + "_" + file1.name;
+        let fullpath1 = __dirname + "/upload/" + file1.name;
 
         await file1.mv(fullpath1);
 
         const result1 = await cloudinary.uploader.upload(fullpath1);
         ProofPicB = result1.url;
 
-        aiJsonData = await AIFUNCTION(result1.url);
+        console.log("ProofPic URL:", ProofPicB);
+
+        // ✅ Call AI safely
+        try {
+          aiJsonData = await AIFUNCTION(result1.url);
+          console.log("AI DATA:", aiJsonData);
+        } catch (aiErr) {
+          console.log("❌ AI ERROR:", aiErr.message);
+          aiJsonData = null; // prevent crash
+        }
+
       } catch (err) {
-        console.log("ProofPic Error:", err.message);
+        console.log("❌ ProofPic Upload Error:", err.message);
       }
     }
 
-    // ================= IMAGE 2 =================
-    if (req.files?.baggerPic) {
+    // =========================
+    // ✅ SECOND IMAGE (Profile Pic)
+    // =========================
+    if (req.files && req.files.baggerPic) {
       try {
         let file2 = req.files.baggerPic;
-        let fullpath2 = __dirname + "/upload/" + Date.now() + "_" + file2.name;
+        let fullpath2 = __dirname + "/upload/" + file2.name;
 
         await file2.mv(fullpath2);
 
         const result2 = await cloudinary.uploader.upload(fullpath2);
         profilePic = result2.url;
+
+        console.log("ProfilePic URL:", profilePic);
+
       } catch (err) {
-        console.log("ProfilePic Error:", err.message);
+        console.log("❌ ProfilePic Upload Error:", err.message);
       }
     }
 
-    // ================= FORM DATA =================
+    // =========================
+    // ✅ SAFE DATA EXTRACTION
+    // =========================
     let emailid = req.body.baggerEmailV || "";
     let address = req.body.baggerAddress || "";
     let city = req.body.baggerCity || "";
     let typeOfWork = req.body.baggerTypeOfWork || "";
     let contact = req.body.baggerContact || "";
 
-    // ================= AI DATA =================
-    let name = aiJsonData?.name || "";
-    let age = aiJsonData?.dob || "";
-    let gender = aiJsonData?.gender || "";
-    let adharNo = aiJsonData?.adhaar_number || null;
+    // ✅ AI SAFE VALUES (NO CRASH)
+    let name = "";
+    let age = "";
+    let gender = "";
+    let adharNo = "";
 
-    // ❌ BLOCK EMPTY AADHAAR
-    if (!adharNo) {
-      return resp.status(400).send("❌ Aadhaar number not detected");
+    if (aiJsonData) {
+      name = aiJsonData.name || "";
+      age = aiJsonData.dob || "";
+      gender = aiJsonData.gender || "";
+      adharNo = aiJsonData.adhaar_number || "";
+    } else {
+      console.log("⚠️ AI data missing, using fallback values");
     }
 
-    // ================= CHECK DUPLICATE =================
+    console.log("FINAL PROFILE PIC:", profilePic);
+
+    // =========================
+    // ✅ DATABASE INSERT
+    // =========================
     MysqlCon.query(
-      "SELECT * FROM baggers WHERE adharNo = ?",
-      [adharNo],
-      function (err, result) {
+      "insert into baggers values(?,?,?,?,?,?,?,?,?,?,?)",
+      [
+        emailid,
+        name,
+        age,
+        gender,
+        address,
+        city,
+        typeOfWork,
+        contact,
+        adharNo,
+        ProofPicB,
+        profilePic,
+      ],
+      function (err) {
         if (err) {
-          console.log(err);
-          return resp.status(500).send("DB Error");
+          console.log("❌ DB ERROR:", err.message);
+          return resp.status(500).send(err.message);
         }
 
-        if (result.length > 0) {
-          return resp.send("⚠️ Aadhaar already exists");
-        }
-
-        // ================= INSERT =================
-        MysqlCon.query(
-          `INSERT INTO baggers 
-          (volid, bname, age, gender, address, city, worktype, contact, adharNo, proffpicurl, hpicurl)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            emailid,
-            name,
-            age,
-            gender,
-            address,
-            city,
-            typeOfWork,
-            contact,
-            adharNo,
-            ProofPicB,
-            profilePic,
-          ],
-          function (err) {
-            if (err) {
-              console.log("Insert Error:", err.message);
-              return resp.status(500).send("Insert Failed");
-            }
-
-            resp.send("✅ Record Saved Successfully");
-          }
-        );
+        resp.send("✅ Record Saved Successfully");
       }
     );
+
   } catch (err) {
-    console.log("SERVER ERROR:", err.message);
+    console.log("❌ SERVER ERROR:", err.message);
     resp.status(500).send("Something went wrong");
   }
 });
+
 
 // ------------- DashBoard ---------------
 app.get("/dasdboard",function(req,resp){
