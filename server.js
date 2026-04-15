@@ -19,8 +19,8 @@ const genAI = new GoogleGenerativeAI("AIzaSyCwidq0q7jrgGHdzDCZl5MqjjPk6EHyOIA");
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 async function AIFUNCTION(imgurl) {
-    try {
-        const myprompt = `
+  try {
+    const myprompt = `
 Extract details from this Aadhaar card image.
 
 Return ONLY valid JSON. No explanation.
@@ -32,57 +32,44 @@ Format:
   "gender": "",
   "dob": ""
 }
-
-Rules:
-- Aadhaar number must be 12 digits only (no spaces)
-- Name should be full name
-- Gender should be Male/Female
-- DOB format: DD/MM/YYYY
 `;
 
-        const imageResp = await fetch(imgurl);
-        const buffer = await imageResp.arrayBuffer();
+    const imageResp = await fetch(imgurl);
+    const buffer = await imageResp.arrayBuffer();
 
-        const result = await model.generateContent([
-            {
-                inlineData: {
-                    data: Buffer.from(buffer).toString("base64"),
-                    mimeType: "image/jpeg",
-                },
-            },
-            myprompt,
-        ]);
+    const result = await model.generateContent([
+      {
+        inlineData: {
+          data: Buffer.from(buffer).toString("base64"),
+          mimeType: "image/jpeg",
+        },
+      },
+      myprompt,
+    ]);
 
-        let text = result.response.text();
-        console.log("RAW AI RESPONSE:", text);
+    let text = result.response.text();
 
-        // Clean markdown if exists
-        text = text.replace(/```json|```/g, '').trim();
+    text = text.replace(/```json|```/g, "").trim();
 
-        let jsonData;
+    let jsonData;
 
-        try {
-            jsonData = JSON.parse(text);
-        } catch (err) {
-            console.log("JSON parse failed, trying fallback...");
-
-            // fallback extraction using regex
-            jsonData = {
-                adhaar_number: text.match(/\d{4}\s?\d{4}\s?\d{4}/)?.[0]?.replace(/\s/g, '') || "",
-                name: "",
-                gender: text.match(/Male|Female/i)?.[0] || "",
-                dob: text.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || ""
-            };
-        }
-
-        console.log("FINAL DATA:", jsonData);
-
-        return jsonData;
-
-    } catch (error) {
-        console.error("AI ERROR:", error);
-        return null;
+    try {
+      jsonData = JSON.parse(text);
+    } catch {
+      jsonData = {
+        adhaar_number:
+          text.match(/\d{4}\s?\d{4}\s?\d{4}/)?.[0]?.replace(/\s/g, "") || "",
+        name: "",
+        gender: text.match(/Male|Female/i)?.[0] || "",
+        dob: text.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "",
+      };
     }
+
+    return jsonData;
+  } catch (error) {
+    console.error("AI ERROR:", error);
+    return null;
+  }
 }
 
 
@@ -405,125 +392,110 @@ app.get("/Bagger-Details",function(req,resp){
 // })
 
 
-
-
 app.post("/Bagger-Details", async function (req, resp) {
   try {
-    console.log("BODY:", req.body);
-
     let ProofPicB = "No_Pic.jpg";
     let profilePic = "No_Pic.jpg";
     let aiJsonData = null;
 
-    // =========================
-    // ✅ FIRST IMAGE (Proof Pic)
-    // =========================
-    if (req.files && req.files.baggerProofPic) {
+    // ================= IMAGE 1 =================
+    if (req.files?.baggerProofPic) {
       try {
         let file1 = req.files.baggerProofPic;
-        let fullpath1 = __dirname + "/upload/" + file1.name;
+        let fullpath1 = __dirname + "/upload/" + Date.now() + "_" + file1.name;
 
         await file1.mv(fullpath1);
 
         const result1 = await cloudinary.uploader.upload(fullpath1);
         ProofPicB = result1.url;
 
-        console.log("ProofPic URL:", ProofPicB);
-
-        // ✅ Call AI safely
-        try {
-          aiJsonData = await AIFUNCTION(result1.url);
-          console.log("AI DATA:", aiJsonData);
-        } catch (aiErr) {
-          console.log("❌ AI ERROR:", aiErr.message);
-          aiJsonData = null; // prevent crash
-        }
-
+        aiJsonData = await AIFUNCTION(result1.url);
       } catch (err) {
-        console.log("❌ ProofPic Upload Error:", err.message);
+        console.log("ProofPic Error:", err.message);
       }
     }
 
-    // =========================
-    // ✅ SECOND IMAGE (Profile Pic)
-    // =========================
-    if (req.files && req.files.baggerPic) {
+    // ================= IMAGE 2 =================
+    if (req.files?.baggerPic) {
       try {
         let file2 = req.files.baggerPic;
-        let fullpath2 = __dirname + "/upload/" + file2.name;
+        let fullpath2 = __dirname + "/upload/" + Date.now() + "_" + file2.name;
 
         await file2.mv(fullpath2);
 
         const result2 = await cloudinary.uploader.upload(fullpath2);
         profilePic = result2.url;
-
-        console.log("ProfilePic URL:", profilePic);
-
       } catch (err) {
-        console.log("❌ ProfilePic Upload Error:", err.message);
+        console.log("ProfilePic Error:", err.message);
       }
     }
 
-    // =========================
-    // ✅ SAFE DATA EXTRACTION
-    // =========================
+    // ================= FORM DATA =================
     let emailid = req.body.baggerEmailV || "";
     let address = req.body.baggerAddress || "";
     let city = req.body.baggerCity || "";
     let typeOfWork = req.body.baggerTypeOfWork || "";
     let contact = req.body.baggerContact || "";
 
-    // ✅ AI SAFE VALUES (NO CRASH)
-    let name = "";
-    let age = "";
-    let gender = "";
-    let adharNo = "";
+    // ================= AI DATA =================
+    let name = aiJsonData?.name || "";
+    let age = aiJsonData?.dob || "";
+    let gender = aiJsonData?.gender || "";
+    let adharNo = aiJsonData?.adhaar_number || null;
 
-    if (aiJsonData) {
-      name = aiJsonData.name || "";
-      age = aiJsonData.dob || "";
-      gender = aiJsonData.gender || "";
-      adharNo = aiJsonData.adhaar_number || "";
-    } else {
-      console.log("⚠️ AI data missing, using fallback values");
+    // ❌ BLOCK EMPTY AADHAAR
+    if (!adharNo) {
+      return resp.status(400).send("❌ Aadhaar number not detected");
     }
 
-    console.log("FINAL PROFILE PIC:", profilePic);
-
-    // =========================
-    // ✅ DATABASE INSERT
-    // =========================
+    // ================= CHECK DUPLICATE =================
     MysqlCon.query(
-      "insert into baggers values(?,?,?,?,?,?,?,?,?,?,?)",
-      [
-        emailid,
-        name,
-        age,
-        gender,
-        address,
-        city,
-        typeOfWork,
-        contact,
-        adharNo,
-        ProofPicB,
-        profilePic,
-      ],
-      function (err) {
+      "SELECT * FROM baggers WHERE adharNo = ?",
+      [adharNo],
+      function (err, result) {
         if (err) {
-          console.log("❌ DB ERROR:", err.message);
-          return resp.status(500).send(err.message);
+          console.log(err);
+          return resp.status(500).send("DB Error");
         }
 
-        resp.send("✅ Record Saved Successfully");
+        if (result.length > 0) {
+          return resp.send("⚠️ Aadhaar already exists");
+        }
+
+        // ================= INSERT =================
+        MysqlCon.query(
+          `INSERT INTO baggers 
+          (volid, bname, age, gender, address, city, worktype, contact, adharNo, proffpicurl, hpicurl)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            emailid,
+            name,
+            age,
+            gender,
+            address,
+            city,
+            typeOfWork,
+            contact,
+            adharNo,
+            ProofPicB,
+            profilePic,
+          ],
+          function (err) {
+            if (err) {
+              console.log("Insert Error:", err.message);
+              return resp.status(500).send("Insert Failed");
+            }
+
+            resp.send("✅ Record Saved Successfully");
+          }
+        );
       }
     );
-
   } catch (err) {
-    console.log("❌ SERVER ERROR:", err.message);
+    console.log("SERVER ERROR:", err.message);
     resp.status(500).send("Something went wrong");
   }
 });
-
 
 // ------------- DashBoard ---------------
 app.get("/dasdboard",function(req,resp){
