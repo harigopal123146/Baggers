@@ -11,69 +11,66 @@
        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
 
        <script>
-       var module=angular.module("usersModule",[]);
-        module.controller("usersController",function($scope,$http)
-        {
-            //================ WorkFill ==================
-             $scope.worktypeJsonAry;
-              $scope.doFetchAllemailid=function()
-              {
-                    $http.get("/angular-FindWorker-work").then(allGoodFxKuch,errFxkuch)
-                    function allGoodFxKuch(result)
-                                    {
-                                            // alert(JSON.stringify(result.data));
-                                            $scope.worktypeJsonAry=result.data;
-                                    }
-                    function errFxkuch(err)
-                    {
-                      alert(err);
-                    }             
-              }
+var module = angular.module("usersModule",[]);
 
-              //==================== CityFill ==================
-               $scope.cityJsonAry;
-              $scope.doFetchAllCity=function()
-              {
-                    $http.get("/angular-FindWorker-city").then(allGoodFxKuch,errFxkuch)
-                    function allGoodFxKuch(result)
-                                    {
-                                            // alert(JSON.stringify(result.data));
-                                            $scope.cityJsonAry=result.data;
-                                    }
-                    function errFxkuch(err)
-                    {
-                      alert(err);
-                    }             
-              }
-              //============== Find Worker =====================
-              $scope.jsonAry=[];
-              $scope.FindWorker=function()
-              {
+module.controller("usersController",function($scope,$http)
+{
+    //================ WorkFill ==================
+    $scope.worktypeJsonAry;
+    $scope.doFetchAllemailid=function()
+    {
+        $http.get("/angular-FindWorker-work").then(function(result){
+            $scope.worktypeJsonAry = result.data;
+        },function(err){
+            alert(err);
+        });
+    }
 
-                 let url="fetchWorkers?worktype="+$scope.selWork+"&city="+$scope.selCity;
+    //================ CityFill ==================
+    $scope.cityJsonAry;
+    $scope.doFetchAllCity=function()
+    {
+        $http.get("/angular-FindWorker-city").then(function(result){
+            $scope.cityJsonAry = result.data;
+        },function(err){
+            alert(err);
+        });
+    }
 
-                    $http.get(url).then(allGood,errkuch)
+    //============== Find Worker =====================
+    $scope.jsonAry=[];
 
-                    function allGood(result)
-                        {
-                            // alert(result);
-                            $scope.jsonAry=result.data;
-                        }
+    $scope.FindWorker=function()
+    {
+        if(!$scope.selWork || !$scope.selCity){
+            alert("Please select both Work Type and City");
+            return;
+        }
 
-                    function errkuch(err)
-                        {
-                            alert(err);
-                        }
-              }
+        let url = "/fetchWorkers?worktype=" 
+                + encodeURIComponent($scope.selWork) 
+                + "&city=" 
+                + encodeURIComponent($scope.selCity);
 
-              //=====================Show Details ======================
-              $scope.selectedWorker = {};
-              $scope.ShowDetails = function (obj)
-               {
-                  $scope.selectedWorker = obj;
-               }
-        })
-       </script>
+        console.log(url); // DEBUG
+
+        $http.get(url).then(function(result){
+            console.log(result.data); // DEBUG
+            $scope.jsonAry = result.data;
+        },function(err){
+            console.log(err);
+            alert("Error fetching workers");
+        });
+    }
+
+    //=====================Show Details ======================
+    $scope.selectedWorker = {};
+    $scope.ShowDetails = function (obj)
+    {
+        $scope.selectedWorker = obj;
+    }
+});
+</script>
   <style>
           /* Page Background */
           body {
@@ -236,7 +233,11 @@
         </div>
 
         <div class="col-md-3 mt-4">
-              <button class="btn btn-success mb-4" ng-click="FindWorker()">Find Worker</button>
+              <button class="btn btn-success"
+                      ng-click="FindWorker()"
+                      ng-disabled="!selWork || !selCity">
+                Find Worker
+              </button>
 
         </div>
       </div>

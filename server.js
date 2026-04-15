@@ -722,13 +722,20 @@ app.get("/angular-FindWorker-city",function(req,resp){
 
 app.get("/fetchWorkers", function(req, resp) {
 
+  console.log("Query Data:", req.query); // DEBUG
+
   let work = req.query.worktype;
   let city = req.query.city;
 
-  let query = "SELECT * FROM baggers WHERE worktype=? AND city=?";
+  let query = `
+    SELECT * FROM baggers 
+    WHERE LOWER(worktype)=LOWER(?) 
+    AND LOWER(city)=LOWER(?)
+  `;
 
   MysqlCon.query(query, [work, city], function(err, result) {
     if (err) {
+      console.log(err);
       resp.send(err);
     } else {
       resp.send(result);
@@ -736,7 +743,6 @@ app.get("/fetchWorkers", function(req, resp) {
   });
 
 });
-
 //============== Bagger Details in modal ==========================
 
 app.get("/angular-fetchBaggers",function(req,resp){
