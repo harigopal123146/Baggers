@@ -18,29 +18,71 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI("AIzaSyCwidq0q7jrgGHdzDCZl5MqjjPk6EHyOIA");
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-async function AIFUNCTION(imgurl)
+async function AIFUNCTION(imgurl) {
+    try {
+        const myprompt = `
+Extract details from this Aadhaar card image.
+
+Return ONLY valid JSON. No explanation.
+
+Format:
 {
-const myprompt = "Read the text on picture and tell all the information in adhaar card and give output STRICTLY in JSON format {adhaar_number:'', name:'', gender:'', dob: ''}. Dont give output as string."   
-    const imageResp = await fetch(imgurl)
-        .then((response) => response.arrayBuffer());
+  "adhaar_number": "",
+  "name": "",
+  "gender": "",
+  "dob": ""
+}
 
-    const result = await model.generateContent([
-        {
-            inlineData: {
-                data: Buffer.from(imageResp).toString("base64"),
-                mimeType: "image/jpeg",
+Rules:
+- Aadhaar number must be 12 digits only (no spaces)
+- Name should be full name
+- Gender should be Male/Female
+- DOB format: DD/MM/YYYY
+`;
+
+        const imageResp = await fetch(imgurl);
+        const buffer = await imageResp.arrayBuffer();
+
+        const result = await model.generateContent([
+            {
+                inlineData: {
+                    data: Buffer.from(buffer).toString("base64"),
+                    mimeType: "image/jpeg",
+                },
             },
-        },
-        myprompt,
-    ]);
-    console.log(result.response.text())
-            
-            const cleaned = result.response.text().replace(/```json|```/g, '').trim();
-            const jsonData = JSON.parse(cleaned);
-            console.log(jsonData);
+            myprompt,
+        ]);
 
-    return jsonData
+        let text = result.response.text();
+        console.log("RAW AI RESPONSE:", text);
 
+        // Clean markdown if exists
+        text = text.replace(/```json|```/g, '').trim();
+
+        let jsonData;
+
+        try {
+            jsonData = JSON.parse(text);
+        } catch (err) {
+            console.log("JSON parse failed, trying fallback...");
+
+            // fallback extraction using regex
+            jsonData = {
+                adhaar_number: text.match(/\d{4}\s?\d{4}\s?\d{4}/)?.[0]?.replace(/\s/g, '') || "",
+                name: "",
+                gender: text.match(/Male|Female/i)?.[0] || "",
+                dob: text.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || ""
+            };
+        }
+
+        console.log("FINAL DATA:", jsonData);
+
+        return jsonData;
+
+    } catch (error) {
+        console.error("AI ERROR:", error);
+        return null;
+    }
 }
 
 
@@ -292,7 +334,7 @@ app.get("/Bagger-Details",function(req,resp){
 })
 
 
-//--------------- Bagger-details Insert --------------
+// --------------- Bagger-details Insert --------------
 // app.post("/Bagger-Details", async function(req,resp)
 // {
 //   let jsonObjStr = JSON.stringify(req.body);
