@@ -293,194 +293,75 @@ app.get("/Bagger-Details",function(req,resp){
 
 
 // --------------- Bagger-details Insert --------------
-// app.post("/Bagger-Details", async function(req,resp)
-// {
-//   let jsonObjStr = JSON.stringify(req.body);
-// console.log(req.body);
+app.post("/Bagger-Details", async function(req,resp)
+{
+  let jsonObjStr = JSON.stringify(req.body);
+console.log(req.body);
 
-//   let ProofPicB="No_Pic.jpg" ;
-//   let profilePic="No_Pic.jpg" ;
+  let ProofPicB="No_Pic.jpg" ;
+  let profilePic="No_Pic.jpg" ;
 
-//     let  aiJsonData;
-//     if(req.files!=null)
-//     {
-//         ProofPicB=req.files.baggerProofPic.name;
-//     let fullpath1=__dirname+"/upload/"+ProofPicB;
-//     req.files.baggerProofPic.mv(fullpath1);
-//      try{
-//     await cloudinary.uploader.upload(fullpath1).then(async function(picUrlResult1)
-//     {
-//         ProofPicB=await picUrlResult1.url;   //will give u the url of ur pic on cloudinary server
-//         console.log(ProofPicB);
-//          aiJsonData=await AIFUNCTION(picUrlResult1.url);
-//         // resp.send(aiJsonData);
+    let  aiJsonData;
+    if(req.files!=null)
+    {
+        ProofPicB=req.files.baggerProofPic.name;
+    let fullpath1=__dirname+"/upload/"+ProofPicB;
+    req.files.baggerProofPic.mv(fullpath1);
+     try{
+    await cloudinary.uploader.upload(fullpath1).then(async function(picUrlResult1)
+    {
+        ProofPicB=await picUrlResult1.url;   //will give u the url of ur pic on cloudinary server
+        console.log(ProofPicB);
+         aiJsonData=await AIFUNCTION(picUrlResult1.url);
+        // resp.send(aiJsonData);
         
-//     })
-//   }
-//   catch(err){
-//     console.log(JSON.stringify(err));
-//     // resp.send(err.message);
-//   }
-  
-//   if (req.files && req.files.baggerPic) {
-//   let fullpath2 = __dirname + "/upload/" + req.files.baggerPic.name;
-
-//   await req.files.baggerPic.mv(fullpath2);
-
-//   try {
-//     const result = await cloudinary.uploader.upload(fullpath2);
-//     profilePic = result.url; 
-//   } catch (err) {
-//     console.log("Cloudinary error:", err.message);
-//     profilePic = "No_Pic.jpg"; // fallback
-//   }
-// }
-// }
-
-
-//   let emailid=req.body.baggerEmailV;
-//   let name=aiJsonData.name;
-//   let age=aiJsonData.dob;
-//   let gender=aiJsonData.gender;
-//   let address=req.body.baggerAddress;
-//   let city=req.body.baggerCity;
-//   let typeOfWork=req.body.baggerTypeOfWork;
-//   let contact=req.body.baggerContact;
-//   let adharNo=aiJsonData.adhaar_number;
-
-//   let proffUrl=ProofPicB;
-//   let picurl= profilePic;
-//   console.log(picurl)
-
-
-//   MysqlCon.query("insert into baggers values(?,?,?,?,?,?,?,?,?,?,?)",[emailid,name,age,gender,address,city,typeOfWork,contact,adharNo,proffUrl,picurl],function(callBackErr)
-//   {
-//      if(callBackErr==null)
-//           resp.send("Record Save");
-//       else
-//         resp.send(callBackErr.message);
-//   })
-// })
-
-
-
-
-app.post("/Bagger-Details", async function (req, resp) {
-  try {
-    console.log("BODY:", req.body);
-
-    let ProofPicB = "No_Pic.jpg";
-    let profilePic = "No_Pic.jpg";
-    let aiJsonData = null;
-
-    // =========================
-    // ✅ FIRST IMAGE (Proof Pic)
-    // =========================
-    if (req.files && req.files.baggerProofPic) {
-      try {
-        let file1 = req.files.baggerProofPic;
-        let fullpath1 = __dirname + "/upload/" + file1.name;
-
-        await file1.mv(fullpath1);
-
-        const result1 = await cloudinary.uploader.upload(fullpath1);
-        ProofPicB = result1.url;
-
-        console.log("ProofPic URL:", ProofPicB);
-
-        // ✅ Call AI safely
-        try {
-          aiJsonData = await AIFUNCTION(result1.url);
-          console.log("AI DATA:", aiJsonData);
-        } catch (aiErr) {
-          console.log("❌ AI ERROR:", aiErr.message);
-          aiJsonData = null; // prevent crash
-        }
-
-      } catch (err) {
-        console.log("❌ ProofPic Upload Error:", err.message);
-      }
-    }
-
-    // =========================
-    // ✅ SECOND IMAGE (Profile Pic)
-    // =========================
-    if (req.files && req.files.baggerPic) {
-      try {
-        let file2 = req.files.baggerPic;
-        let fullpath2 = __dirname + "/upload/" + file2.name;
-
-        await file2.mv(fullpath2);
-
-        const result2 = await cloudinary.uploader.upload(fullpath2);
-        profilePic = result2.url;
-
-        console.log("ProfilePic URL:", profilePic);
-
-      } catch (err) {
-        console.log("❌ ProfilePic Upload Error:", err.message);
-      }
-    }
-
-    // =========================
-    // ✅ SAFE DATA EXTRACTION
-    // =========================
-    let emailid = req.body.baggerEmailV || "";
-    let address = req.body.baggerAddress || "";
-    let city = req.body.baggerCity || "";
-    let typeOfWork = req.body.baggerTypeOfWork || "";
-    let contact = req.body.baggerContact || "";
-
-    // ✅ AI SAFE VALUES (NO CRASH)
-    let name = "";
-    let age = "";
-    let gender = "";
-    let adharNo = "";
-
-    if (aiJsonData) {
-      name = aiJsonData.name || "";
-      age = aiJsonData.dob || "";
-      gender = aiJsonData.gender || "";
-      adharNo = aiJsonData.adhaar_number || "";
-    } else {
-      console.log("⚠️ AI data missing, using fallback values");
-    }
-
-    console.log("FINAL PROFILE PIC:", profilePic);
-
-    // =========================
-    // ✅ DATABASE INSERT
-    // =========================
-    MysqlCon.query(
-      "insert into baggers values(?,?,?,?,?,?,?,?,?,?,?)",
-      [
-        emailid,
-        name,
-        age,
-        gender,
-        address,
-        city,
-        typeOfWork,
-        contact,
-        adharNo,
-        ProofPicB,
-        profilePic,
-      ],
-      function (err) {
-        if (err) {
-          console.log("❌ DB ERROR:", err.message);
-          return resp.status(500).send(err.message);
-        }
-
-        resp.send("✅ Record Saved Successfully");
-      }
-    );
-
-  } catch (err) {
-    console.log("❌ SERVER ERROR:", err.message);
-    resp.status(500).send("Something went wrong");
+    })
   }
-});
+  catch(err){
+    console.log(JSON.stringify(err));
+    // resp.send(err.message);
+  }
+  
+  if (req.files && req.files.baggerPic) {
+  let fullpath2 = __dirname + "/upload/" + req.files.baggerPic.name;
+
+  await req.files.baggerPic.mv(fullpath2);
+
+  try {
+    const result = await cloudinary.uploader.upload(fullpath2);
+    profilePic = result.url; 
+  } catch (err) {
+    console.log("Cloudinary error:", err.message);
+    profilePic = "No_Pic.jpg"; // fallback
+  }
+}
+}
+
+
+  let emailid=req.body.baggerEmailV;
+  let name=aiJsonData.name;
+  let age=aiJsonData.dob;
+  let gender=aiJsonData.gender;
+  let address=req.body.baggerAddress;
+  let city=req.body.baggerCity;
+  let typeOfWork=req.body.baggerTypeOfWork;
+  let contact=req.body.baggerContact;
+  let adharNo=aiJsonData.adhaar_number;
+
+  let proffUrl=ProofPicB;
+  let picurl= profilePic;
+  console.log(picurl)
+
+
+  MysqlCon.query("insert into baggers values(?,?,?,?,?,?,?,?,?,?,?)",[emailid,name,age,gender,address,city,typeOfWork,contact,adharNo,proffUrl,picurl],function(callBackErr)
+  {
+     if(callBackErr==null)
+          resp.send("Record Save");
+      else
+        resp.send(callBackErr.message);
+  })
+})
+
 
 
 // ------------- DashBoard ---------------
