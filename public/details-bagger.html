@@ -17,8 +17,18 @@
             }
          }
          //========================
+
+
+
+
+
         $(document).ready(function(){
-           $("#baggerEmailV").blur(function(){
+
+
+         let user = localStorage.getItem("activeuser");
+         $("#baggerEmailV").val(user);
+
+          $("#baggerEmailV").blur(function(){
                 
                 let email=$(this).val();
                 let regEx=/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -150,7 +160,7 @@
                   <div class="row">
                      <div class="col-md-7">
                       <label for="baggerEmailV" class="form-label">Volunteer's Email id</label>
-                      <input type="email" class="form-control" name="baggerEmailV" id="baggerEmailV" required>
+                      <input type="email" class="form-control" name="baggerEmailV" id="baggerEmailV" readonly required>
                         <div class="err" id="errEmail"></div>
 
                     </div>

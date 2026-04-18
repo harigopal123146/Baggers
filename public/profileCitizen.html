@@ -19,6 +19,8 @@
         }
         //===============================================
          $(document).ready(function(){
+           let user = localStorage.getItem("activeuser");
+         $("#txtEmailCit").val(user);
            $("#txtEmailCit").blur(function(){
                 
                 let email=$(this).val();
