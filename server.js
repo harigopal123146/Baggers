@@ -481,11 +481,13 @@ console.log(req.body);
         resp.send(`
          <html>
          <body>
-            <script>alert("Record saved successfully..");</script>
+            <script>
+            alert("Record saved successfully..");
+            location.href="/Citizen-Dashboard";
+            </script>
          </body>
-         </html>
-`);
-          resp.redirect("/Citizen-Dashboard")
+         </html>`);
+         
         }
       else
         resp.send(callBackErr.message);
