@@ -15,7 +15,7 @@ app.use(fileuploader());// File Uploader
 // ===============   Gemini AI ==========================
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI("AQ.Ab8RN6JtYmN-oXzmBT1tHCF6S-VmcLeXIZHHvklOKTSi2gbI0A");
+const genAI = new GoogleGenerativeAI("AIzaSyD_J3cnfkAHGvVQe7hqHuxaXyqcFAnxrMg");
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 async function AIFUNCTION(imgurl)
@@ -291,77 +291,74 @@ app.get("/Bagger-Details",function(req,resp){
   resp.sendFile(fullPath);
 })
 
-
-// --------------- Bagger-details Insert --------------
-app.post("/Bagger-Details", async function(req,resp)
+app.post("/Bagger-Details", async function(req, resp)
 {
-  let jsonObjStr = JSON.stringify(req.body);
-console.log(req.body);
+  console.log(req.body);
 
-  let ProofPicB="No_Pic.jpg" ;
-  let profilePic="No_Pic.jpg" ;
-
-    let  aiJsonData;
-    if(req.files!=null)
-    {
-        ProofPicB=req.files.baggerProofPic.name;
-    let fullpath1=__dirname+"/upload/"+ProofPicB;
-    req.files.baggerProofPic.mv(fullpath1);
-     try{
-    await cloudinary.uploader.upload(fullpath1).then(async function(picUrlResult1)
-    {
-        ProofPicB=await picUrlResult1.url;   //will give u the url of ur pic on cloudinary server
-        console.log(ProofPicB);
-         aiJsonData=await AIFUNCTION(picUrlResult1.url);
-        // resp.send(aiJsonData);
-        
-    })
-  }
-  catch(err){
-    console.log(JSON.stringify(err));
-    // resp.send(err.message);
-  }
-  
-  if (req.files && req.files.baggerPic) {
-  let fullpath2 = __dirname + "/upload/" + req.files.baggerPic.name;
-
-  await req.files.baggerPic.mv(fullpath2);
+  let ProofPicB = "No_Pic.jpg";
+  let profilePic = "No_Pic.jpg";
+  let aiJsonData = {};
 
   try {
-    const result = await cloudinary.uploader.upload(fullpath2);
-    profilePic = result.url; 
-  } catch (err) {
-    console.log("Cloudinary error:", err.message);
-    profilePic = "No_Pic.jpg"; // fallback
+
+    if (req.files && req.files.baggerProofPic && req.files.baggerPic)
+    {
+        // -------- Proof Pic Upload --------
+        let proofFile = req.files.baggerProofPic;
+        let fullpath1 = __dirname + "/upload/" + proofFile.name;
+
+        await proofFile.mv(fullpath1);
+
+        const picUrlResult1 = await cloudinary.uploader.upload(fullpath1);
+
+        ProofPicB = picUrlResult1.url;
+        console.log("Proof URL:", ProofPicB);
+
+        // AI Function
+        aiJsonData = await AIFUNCTION(ProofPicB);
+
+
+        // -------- Profile Pic Upload --------
+        let profileFile = req.files.baggerPic;
+        let fullpath2 = __dirname + "/upload/" + profileFile.name;
+
+        await profileFile.mv(fullpath2);
+
+        const picUrlResult2 = await cloudinary.uploader.upload(fullpath2);
+
+        profilePic = picUrlResult2.url;
+        console.log("Profile URL:", profilePic);
+    }
+
+    // -------- Safe Data Extraction --------
+    let emailid = req.body.baggerEmailV;
+    let name = aiJsonData?.name || "";
+    let age = aiJsonData?.dob || "";
+    let gender = aiJsonData?.gender || "";
+    let address = req.body.baggerAddress;
+    let city = req.body.baggerCity;
+    let typeOfWork = req.body.baggerTypeOfWork;
+    let contact = req.body.baggerContact;
+    let adharNo = aiJsonData?.adhaar_number || "";
+
+    // -------- DB Insert --------
+    MysqlCon.query(
+      "insert into baggers values(?,?,?,?,?,?,?,?,?,?,?)",
+      [emailid,name,age,gender,address,city,typeOfWork,contact,adharNo,ProofPicB,profilePic],
+      function(err)
+      {
+        if(err==null)
+          resp.send("Record Saved");
+        else
+          resp.send(err.message);
+      }
+    );
+
+  } catch(err) {
+    console.log(err);
+    resp.send("Error: " + err.message);
   }
-}
-}
-
-
-  let emailid=req.body.baggerEmailV;
-  let name=aiJsonData.name;
-  let age=aiJsonData.dob;
-  let gender=aiJsonData.gender;
-  let address=req.body.baggerAddress;
-  let city=req.body.baggerCity;
-  let typeOfWork=req.body.baggerTypeOfWork;
-  let contact=req.body.baggerContact;
-  let adharNo=aiJsonData.adhaar_number;
-
-  let proffUrl=ProofPicB;
-  let picurl= profilePic;
-  console.log(picurl)
-
-
-  MysqlCon.query("insert into baggers values(?,?,?,?,?,?,?,?,?,?,?)",[emailid,name,age,gender,address,city,typeOfWork,contact,adharNo,proffUrl,picurl],function(callBackErr)
-  {
-     if(callBackErr==null)
-          resp.send("Record Save");
-      else
-        resp.send(callBackErr.message);
-  })
-})
-
+});
 
 
 // ------------- DashBoard ---------------
