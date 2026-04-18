@@ -477,7 +477,10 @@ console.log(req.body);
   MysqlCon.query("insert into citizenProfile values(?,?,?,?,?,?,?,?,?,?,?)",[emailid,adharFronturl,adharBackurl,contact,name,adharNo,fatherName,dob,gender,address,city],function(callBackErr)
   {
      if(callBackErr==null)
+      {
+          resp.send('<script>alert("Record saved successfully..");</script>')
           resp.redirect("/Citizen-Dashboard")
+        }
       else
         resp.send(callBackErr.message);
   })
