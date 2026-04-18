@@ -478,7 +478,13 @@ console.log(req.body);
   {
      if(callBackErr==null)
       {
-          resp.send('<script>alert("Record saved successfully..");</script>')
+        resp.send(`
+         <html>
+         <body>
+            <script>alert("Record saved successfully..");</script>
+         </body>
+         </html>
+`);
           resp.redirect("/Citizen-Dashboard")
         }
       else
