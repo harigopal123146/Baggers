@@ -343,8 +343,8 @@ app.post("/Bagger-Details", async function(req, resp)
 
     // -------- DB Insert --------
     MysqlCon.query(
-      "insert into baggers values(?,?,?,?,?,?,?,?,?,?,?)",
-      [emailid,name,age,gender,address,city,typeOfWork,contact,adharNo,ProofPicB,profilePic],
+      "insert into baggers values(?,?,?,?,?,?,?,?,?,?,?,?)",
+      [null,emailid,name,age,gender,address,city,typeOfWork,contact,adharNo,ProofPicB,profilePic],
       function(err)
       {
         if(err==null)
@@ -661,8 +661,8 @@ app.get("/angular-Baggers", function(req, resp) {
   );
 });
 app.get("/angular-user-delete",function(req,resp){
-  let volid=req.query.volid;
-  MysqlCon.query("delete from baggers where volid=?",[volid],function(err,result){
+  let bid=req.query.bid;
+  MysqlCon.query("delete from baggers where bid=?",[bid],function(err,result){
       if(err==null)
       {
         if(result.affectedRows==1)

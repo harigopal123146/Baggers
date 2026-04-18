@@ -33,10 +33,10 @@
         }
            
                       //==========================================
-        $scope.doDelete=function(volid)
+        $scope.doDelete=function(bid)
         {
           //alert(emailid)
-           $http.get("/angular-user-delete?volid="+volid).then(allGoodFx,errFx);
+           $http.get("/angular-user-delete?bid="+bid).then(allGoodFx,errFx);
           function allGoodFx(result)
             {
                alert(result.data);
@@ -168,7 +168,7 @@
                                 <td>{{obj.contact}}</td>
                                 <td>{{obj.adharNo}}</td>
                                  <td>
-                                <input type="button" value="delete" ng-click="doDelete(obj.volid);">
+                                <input type="button" value="delete" ng-click="doDelete(obj.bid);">
                               </td>
                                 
                             </tr>

@@ -96,6 +96,11 @@
                 })
       //============================
     
+       let user = localStorage.getItem("activeuser");
+       $("#txtEmailV").val(user);
+
+    
+
        $("#btnFetch").click(function(){
                let obj={
                      type:"GET",
@@ -107,7 +112,7 @@
                 }
 
                 $.ajax(obj).then(function(respJsonAry){
-                        alert(JSON.stringify(respJsonAry));
+                        // alert(JSON.stringify(respJsonAry));
                         $("#txtNameV").val(respJsonAry[0].name);
                         $("#txtPhoneV").val(respJsonAry[0].contact);
                         $("#txtAddrV").val(respJsonAry[0].address);
@@ -251,7 +256,7 @@
                   <div class="row">
                      <div class="col-md-5">
                       <label for="txtEmailV" class="form-label">Email</label>
-                      <input type="email" class="form-control" name="txtEmailV" id="txtEmailV" required>
+                      <input type="email" class="form-control" readonly name="txtEmailV" id="txtEmailV" required>
                       <div class="err" id="errEmail"></div>
                     </div>
                     <div class="col-md-5  mt-4">
