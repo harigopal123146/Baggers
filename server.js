@@ -357,7 +357,7 @@ app.post("/Bagger-Details", async function(req, resp)
       [null,emailid,name,age,gender,address,city,typeOfWork,contact,adharNo,ProofPicB,profilePic],
       function(err)
       {
-        if(callBackErr==null)
+        if(err==null)
       {
         resp.send(`
          <html>
