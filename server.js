@@ -15,7 +15,7 @@ app.use(fileuploader());// File Uploader
 // ===============   Gemini AI ==========================
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI("AIzaSyD_J3cnfkAHGvVQe7hqHuxaXyqcFAnxrMg");
+const genAI = new GoogleGenerativeAI("AIzaSyAiAHGtlci1V0_SSykyPsrGcwprcmmOApQ");
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 async function AIFUNCTION(imgurl)
@@ -199,9 +199,19 @@ console.log(req.body);
   let picurl=profileFileName;
   MysqlCon.query(
     "insert into Volprofile1 values(?,?,?,?,?,?,?,?,?,?,?)",[emailid,name,contact,address,city,gender,occupation,volType,ngoRegNo,adharurl,picurl],function(callBackErr){
-      if(callBackErr == null){
-          resp.send("Record Saved");
-      }
+     if(callBackErr==null)
+      {
+        resp.send(`
+         <html>
+         <body>
+            <script>
+            alert("Record saved successfully..");
+            location.href="/dasdboard";
+            </script>
+         </body>
+         </html>`);
+         
+        }
       else{
           console.log(callBackErr);
           resp.send(callBackErr.sqlMessage || callBackErr.message);
@@ -347,8 +357,19 @@ app.post("/Bagger-Details", async function(req, resp)
       [null,emailid,name,age,gender,address,city,typeOfWork,contact,adharNo,ProofPicB,profilePic],
       function(err)
       {
-        if(err==null)
-          resp.send("Record Saved");
+        if(callBackErr==null)
+      {
+        resp.send(`
+         <html>
+         <body>
+            <script>
+            alert(" Bagger Record Upload successfully..");
+            location.href="/dasdboard";
+            </script>
+         </body>
+         </html>`);
+         
+        }
         else
           resp.send(err.message);
       }
