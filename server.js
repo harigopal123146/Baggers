@@ -15,7 +15,7 @@ app.use(fileuploader());// File Uploader
 // ===============   Gemini AI ==========================
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI("AIzaSyAiAHGtlci1V0_SSykyPsrGcwprcmmOApQ");
+const genAI = new GoogleGenerativeAI("AIzaSyDe20_Tlh_SNFd4Zy_aaqxHhjGXipm-2xE");
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 async function AIFUNCTION(imgurl)
